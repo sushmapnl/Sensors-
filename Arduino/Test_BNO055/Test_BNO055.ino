@@ -1,4 +1,4 @@
-@@ -0,0 +1,162 @@
+
 #include<Wire.h>
 
 #define CHIP_ID   0x00
@@ -21,7 +21,7 @@ int16_t tempG, tempM;
 
 float ax,ay, az, gx, gy, gz, mx, my, mz;
 
-enum CONFIGMODE = 0x00;
+enum  OPRMode { CONFIGMODE = 0x00 };
 
 // Using the BNO055_MS5637 breakout board/Teensy 3.1 Add-On Shield, ADO is set to 1 by default 
 #define ADO 1
@@ -42,27 +42,27 @@ void setup() {
  Serial.begin(9600);
  
  Serial.println("BNO055 9-axis motion sensor...");
- byte c = readByte(CHIP_ID);
+ byte c = readByte(BNO055_ADDRESS,CHIP_ID);
  Serial.println("CHIP_ID"); Serial.print(c, HEX); //Serial.println(" 0xA0");
  
  delay(1000);
  
- byte d = readByte(ACC_ID);
+ byte d = readByte(BNO055_ADDRESS,ACC_ID);
   Serial.println("ACC_ID");Serial.print(d, HEX); //Serial.println(" 0xFB");
  
  delay(1000);
  
- byte e = readByte(MAG_ID);
+ byte e = readByte(BNO055_ADDRESS,MAG_ID);
   Serial.println("MAG_ID"); Serial.print(e, HEX); 
   
   delay(1000);
   
-  byte f = readByte(GYRO_ID);
+  byte f = readByte(BNO055_ADDRESS,GYRO_ID);
    Serial.println("GYRO_ID");  Serial.print(f, HEX); 
    
    delay(1000);
    
-   initBNO055();  {// Initialize BNO055 
+   initBNO055();  // Initialize BNO055 
    Serial.println("BNO055 initialized....");
    }
    else 
@@ -151,7 +151,16 @@ void writeByte(uint8_t address, uint8_t subAddress, uint8_t data) {
   Wire.write(data);
   Wire.endTransmission();
 }
-void readBytes(uint8_t address, uint8 subAddress, uint8_t count, uint8_t *dest1) { 
+uint8_t readByte(uint8_t address, uint8_t subAddress) {
+  uint8_t data;
+  Wire.beginTransmission(address);
+  Wire.write(subAddress);
+  Wire.endTransmission(false);
+  Wire.requestFrom(address, 1);
+  data = Wire.read();
+  return data;
+}
+void readBytes(uint8_t address, uint8_t subAddress, uint8_t count, uint8_t *dest1) { 
     Wire.beginTransmission(address); //Initialize Tx buffer
     Wire.write(subAddress);  
     Wire.endTransmission(false);
