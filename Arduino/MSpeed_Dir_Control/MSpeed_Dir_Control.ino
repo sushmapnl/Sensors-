@@ -1,3 +1,4 @@
+#include<WiFi.h>
 
 #define ML1  17
 #define ML2  5
@@ -5,6 +6,12 @@
 #define MR2  23
 #define E1  16
 #define E2  19
+
+const char* ssid = "MichiganTechOpen";
+const char* key = "";
+
+WiFiServer server(80); 
+WiFiClient client;
 
 void speedir_control( int dir, int turn_per) { 
 
@@ -46,12 +53,34 @@ void setup() {
 
 
   Serial.begin(9600);
+  WiFi.begin(ssid, key);
+
+  while(WiFi.status()!= WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+  server.begin();
+  Serial.println("Waiting for Client connection");
+
+  while(!client) {
+    client = server.available();
+    Serial.println(WiFi.localIP());
+    delay(1000);
+  }
+  Serial.println("Client Connected");
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
-  if(Serial.available()) { 
 
+  if(client.connected()) {
+    client.println("Connected");
+  } else { 
+    Serial.println("Disconnected");
+  }
+
+  while(client.available()) { 
+   
     int dir1 = Serial.parseInt();
     int turn_per1 = Serial.parseInt();
     Serial.read();

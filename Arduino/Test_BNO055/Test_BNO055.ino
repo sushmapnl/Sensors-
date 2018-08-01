@@ -1,4 +1,4 @@
-@@ -0,0 +1,162 @@
+
 #include<Wire.h>
 
 #define CHIP_ID   0x00
@@ -21,7 +21,7 @@ int16_t tempG, tempM;
 
 float ax,ay, az, gx, gy, gz, mx, my, mz;
 
-enum CONFIGMODE = 0x00;
+enum OPRMODE { CONFIGMODE = 0x00 };
 
 // Using the BNO055_MS5637 breakout board/Teensy 3.1 Add-On Shield, ADO is set to 1 by default 
 #define ADO 1
@@ -151,7 +151,7 @@ void writeByte(uint8_t address, uint8_t subAddress, uint8_t data) {
   Wire.write(data);
   Wire.endTransmission();
 }
-void readBytes(uint8_t address, uint8 subAddress, uint8_t count, uint8_t *dest1) { 
+void readBytes(uint8_t address, uint8_t subAddress, uint8_t count, uint8_t *dest1) { 
     Wire.beginTransmission(address); //Initialize Tx buffer
     Wire.write(subAddress);  
     Wire.endTransmission(false);
