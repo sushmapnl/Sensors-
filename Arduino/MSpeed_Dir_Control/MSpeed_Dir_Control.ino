@@ -14,7 +14,6 @@ WiFiServer server(80);
 WiFiClient client;
 
 void speedir_control( int dir, int turn_per) { 
-
   //direction
   digitalWrite( ML1, HIGH); 
   digitalWrite ( ML2 ,  LOW );
@@ -62,32 +61,45 @@ void setup() {
   server.begin();
   Serial.println("Waiting for Client connection");
 
-  while(!client) {
+  try_connection();
+  Serial.println("Client Connected");
+}
+void try_connection() {
+  // loop forever until client a client is connected
+  while (!client) {
     client = server.available();
     Serial.println(WiFi.localIP());
     delay(1000);
   }
-  Serial.println("Client Connected");
 }
-
 void loop() {
   // put your main code here, to run repeatedly:
 
   if(client.connected()) {
     client.println("Connected");
-  } else { 
-    Serial.println("Disconnected");
+  } else if (!client) { 
+//    Serial.println("Disconnected");
+     try_connection();
   }
 
-  while(client.available()) { 
+  if (client.available()) { 
    
-    int dir1 = Serial.parseInt();
-    int turn_per1 = Serial.parseInt();
-    Serial.read();
+//    int dir1 = Serial.parseInt();
+//    int turn_per1 = Serial.parseInt();
+       int dir1 = client.parseInt();
+       int turn_per1 = client.parseInt();
+//    Serial.read();
+      client.read();
     speedir_control (dir1, turn_per1);
 
-    Serial.println(dir1);
-    Serial.println(turn_per1);
+//    Serial.println(dir1);
+//    Serial.println(turn_per1);
+      client.println(dir1);
+      client.println(turn_per1);
+  }
+
+  else if (!client) {
+    try_connection();
   }
 
   delay(10);  
