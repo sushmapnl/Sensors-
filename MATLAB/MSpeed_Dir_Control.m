@@ -5,7 +5,7 @@ fopen(t)
 
 
 
-fprintf(t, '%d %d\n', [0 0]);
+fprintf(t, '%d %d\n', [0 100]);
 
 
 %fscanf(t, '%d', [1,inf]);

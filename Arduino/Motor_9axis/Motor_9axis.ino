@@ -15,6 +15,12 @@ Adafruit_BNO055 bno = Adafruit_BNO055(55);
 #define E1  16
 #define E2  19
 
+const char* ssid = "MichiganTechOpen";
+const char* key = "";
+
+WiFiServer server(80); 
+WiFiClient client;
+
 void speedir_control( int dir, int turn_per) { 
 
   //direction
@@ -58,6 +64,18 @@ void setup() {
 
   
   Serial.begin(9600);
+  WiFi.begin(ssid, key);
+
+  while(WiFi.status()!= WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+  server.begin();
+  Serial.println("Waiting for Client connection");
+
+  try_connection();
+  Serial.println("Client Connected");
+
   Serial.println("Orientation Results of Motor"); Serial.println("");
 
   if(!bno.begin())
@@ -66,20 +84,37 @@ void setup() {
     while(1);
   }
   delay(1000);
+  bno.setExtCrystalUse(true);
 }
-
+void try_connection() {
+  // loop forever until client a client is connected
+  while (!client) {
+    client = server.available();
+    Serial.println(WiFi.localIP());
+    delay(1000);
+  }
+}
 void loop() {
   // put your main code here, to run repeatedly:
+ if(client.connected()) {
+    client.println("Connected");
+  } else if (!client) { 
+//    Serial.println("Disconnected");
+     try_connection();
+  }
+ if (client.available()) {
 
- if(Serial.available()) {
-
-  int dir1 = Serial.parseInt();
-    int turn_per1 = Serial.parseInt();
-    Serial.read();
+  int dir1 = client.parseInt();
+    int turn_per1 = client.parseInt();
+    client.read();
     speedir_control (dir1, turn_per1);
 
-    Serial.println(dir1);
-    Serial.println(turn_per1);
+    client.println(dir1);
+    client.println(turn_per1);
+ }
+ else if (!client) {
+    try_connection();
+  }
 
  sensors_event_t event;
  bno.getEvent(&event);
@@ -94,7 +129,7 @@ void loop() {
  displayCalStatus();
  Serial.println("");
  delay(BNO055_SAMPLERATE_DELAY_MS);
- }
+ 
 
  delay(10);
 }
